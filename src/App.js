@@ -8,6 +8,8 @@ import NavBar from './components/NavBar';
 
 import IndexPage from './pages/IndexPage';
 
+import CreateNew from './pages/CreateNewPage';
+
 
 const App = () => {
 
@@ -24,6 +26,8 @@ const App = () => {
       <Routes location={location} key={location.pathname}>
 
         <Route path='/' element={<IndexPage />} />
+
+        <Route path='/create' element={<CreateNew />} />
 
         <Route path='*' element={<PageNotFound />} />
 
