@@ -1,8 +1,11 @@
+import { useNavigate } from "react-router-dom"
+
 import { useEffect, useState } from "react"
 
 import { Link } from "react-router-dom"
 
 import Select from "react-select"
+
 import { SpinnerCircular } from "spinners-react"
 
 import styled from "styled-components"
@@ -13,16 +16,18 @@ import Products from "../utils/Products.json"
 
 import { sendMiniMessage } from "../controllers/MessageCtrl"
 
-import { postApiJson } from "../controllers/APICtrl"
+import { patchApiJson } from "../controllers/APICtrl"
 
-import { createPromo } from "../api"
+import { updatePromo } from "../api"
 
 
 const brandsOptions = Brands.allBrands.map(brand => { return { label: brand.name, value: brand.name } })
 
 const productsOptions = Products.groceries.map(product => { return { label: product.name, value: product.name } })
 
-const CreateNew = () => {
+const UpdatePage = ({ promoData }) => {
+
+  const navigate = useNavigate()
 
   const appliedOptions = [
 
@@ -32,14 +37,15 @@ const CreateNew = () => {
 
   ]
 
-  const [appliedValue, setAppliedValue] = useState({ label: "Product", value: "Product" })
+  const [appliedValue, setAppliedValue] = useState({ label: promoData.productOrBrand.type, value: promoData.productOrBrand.type })
 
-  const [prodBrandVal, setProdBrandVal] = useState(null)
+  const [prodBrandVal, setProdBrandVal] = useState({ label: promoData.productOrBrand.data.name, value: promoData.productOrBrand.data.name })
 
   const [loadingText, setLoadingText] = useState("")
 
   useEffect(() => { setProdBrandVal(null) }, [appliedValue])
 
+  useEffect(() => { setProdBrandVal({ label: promoData.productOrBrand.data.name, value: promoData.productOrBrand.data.name }) }, [promoData.productOrBrand.data.name])
 
   const addOneToPrevious = e => {
 
@@ -93,7 +99,7 @@ const CreateNew = () => {
 
   }
 
-  const createBuy = async e => {
+  const updateBuy = async e => {
 
     e.preventDefault()
 
@@ -123,7 +129,7 @@ const CreateNew = () => {
 
     }
 
-    setLoadingText("Creating Promo")
+    setLoadingText("Updating Promo")
 
     const productData = {
 
@@ -157,15 +163,15 @@ const CreateNew = () => {
 
     }
 
-    const creationData = await postApiJson(createPromo(), productData)
+    const updationData = await patchApiJson(updatePromo(promoData.title), productData)
 
-    if (creationData.error) {
+    if (updationData.error) {
 
       sendMiniMessage({
 
         icon: { name: "times" },
 
-        content: { text: creationData.bat === '...' ? creationData.message : `An Error Occured` }
+        content: { text: updationData.bat === '...' ? updationData.message : `An Error Occured` }
 
       }, 2000)
 
@@ -175,11 +181,13 @@ const CreateNew = () => {
 
         icon: { name: "ok" },
 
-        content: { text: `Promo Created` }
+        content: { text: `Promo Updated` }
 
       }, 2000)
 
       form.reset()
+
+      navigate('/')
 
     }
 
@@ -189,7 +197,7 @@ const CreateNew = () => {
 
   return (
 
-    <CreateNewStyle>
+    <UpdatePageStyle>
 
       <div className="inner">
 
@@ -201,7 +209,7 @@ const CreateNew = () => {
 
         <div className="body">
 
-          <form onSubmit={createBuy}>
+          <form onSubmit={updateBuy}>
 
             <div className="form-side">
 
@@ -211,9 +219,9 @@ const CreateNew = () => {
 
                 <div>
 
-                  <input required type="text" id="abg-title" name="abg-title" autoComplete="abg-title" placeholder="Enter Title" onInput={validateSpan} />
+                  <input required type="text" id="abg-title" name="abg-title" autoComplete="abg-title" placeholder="Enter Title" onInput={validateSpan} defaultValue={promoData.title} />
 
-                  <small>* Title is required</small>
+                  <small className="ok">* Title is required</small>
 
                 </div>
 
@@ -225,9 +233,9 @@ const CreateNew = () => {
 
                 <div>
 
-                  <input required type="datetime-local" id="abg-startDate" name="abg-startDate" autoComplete="abg-startDate" onInput={validateSpan} />
+                  <input required type="datetime-local" id="abg-startDate" name="abg-startDate" autoComplete="abg-startDate" onInput={validateSpan} defaultValue={promoData.startDate} />
 
-                  <small>* Start Date is required</small>
+                  <small className="ok">* Start Date is required</small>
 
                 </div>
 
@@ -243,9 +251,9 @@ const CreateNew = () => {
 
                 <div>
 
-                  <input required type="datetime-local" id="abg-endDate" name="abg-endDate" autoComplete="abg-endDate" onInput={validateSpan} />
+                  <input required type="datetime-local" id="abg-endDate" name="abg-endDate" autoComplete="abg-endDate" onInput={validateSpan} defaultValue={promoData.endDate} />
 
-                  <small>* End Date is required</small>
+                  <small className="ok">* End Date is required</small>
 
                 </div>
 
@@ -289,7 +297,7 @@ const CreateNew = () => {
 
                 <div>
 
-                  <input required type="number" placeholder="1" name="abg-pr" id="abg-pr" autoComplete="off" />
+                  <input required type="number" placeholder="1" name="abg-pr" id="abg-pr" autoComplete="off" defaultValue={promoData.productOrBrand.pieces} />
 
                   <button type="button" onClick={addOneToPrevious}>+</button>
 
@@ -309,7 +317,7 @@ const CreateNew = () => {
 
                 <div>
 
-                  <Select name="abg-ofp" id="abg-ofp" options={productsOptions} />
+                  <Select name="abg-ofp" id="abg-ofp" options={productsOptions} defaultValue={{ label: promoData.offerProducts.data.name, value: promoData.offerProducts.data.name }} />
 
                 </div>
 
@@ -321,7 +329,7 @@ const CreateNew = () => {
 
                 <div>
 
-                  <input required type="number" placeholder="1" name="abg-opr" id="abg-opr" autoComplete="off" />
+                  <input required type="number" placeholder="1" name="abg-opr" id="abg-opr" autoComplete="off" defaultValue={promoData.offerProducts.pieces} />
 
                   <button type="button" onClick={addOneToPrevious}>+</button>
 
@@ -333,7 +341,7 @@ const CreateNew = () => {
 
             <div className="end-pack">
 
-              <button type={"submit"}>Create Promo</button>
+              <button type={"submit"}>Update Promo</button>
 
             </div>
 
@@ -361,13 +369,13 @@ const CreateNew = () => {
 
       </div>
 
-    </CreateNewStyle>
+    </UpdatePageStyle>
 
   )
 
 }
 
-const CreateNewStyle = styled.div`
+const UpdatePageStyle = styled.div`
   width: 100%;
 
   .header {
@@ -396,11 +404,11 @@ const CreateNewStyle = styled.div`
         font-size: 1.1pc;
         color: #2cb4ac;
       }
-      
+
       .form-pack {
         width: 49%;
       }
-
+      
       @media screen and (max-width: 600px) {
 
         .form-pack {
@@ -545,6 +553,7 @@ const CreateNewStyle = styled.div`
     }
 
   }
+
   
   .abs-form {
     position: fixed;
@@ -570,4 +579,4 @@ const CreateNewStyle = styled.div`
   }
 `
 
-export default CreateNew
+export default UpdatePage

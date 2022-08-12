@@ -2,16 +2,18 @@ import { backendLocation } from './__env'
 
 
 // Item routes
-export const getAllItems = (sectionName, skip, limit, filter) => {
+export const getAllBuyGet = (sectionName, skip, limit, filter) => {
 
-  return `${backendLocation}/api/items/get-all?limit=${limit}&skip=${skip}&section=${sectionName}&sortBy=updatedAt:desc${filter ? `&filter=${filter}` : ''}`
+  return `${backendLocation}/api/buyGet/get-all?limit=${limit}&skip=${skip}&section=${sectionName}&sortBy=updatedAt:desc${filter ? `&filter=${filter}` : ''}`
 
 }
 
-export const getProduct = (productID) => `${backendLocation}/api/items/get?_id=${productID}`
+export const getAllBuyGetSimple = () =>  `${backendLocation}/api/buyGet/get-all`
 
-export const createProduct = (item_password) => `${backendLocation}/api/items/create?item_password=${item_password}`
+export const getPromo = (promoTitle) => `${backendLocation}/api/buyGet/getSingle?title=${promoTitle}`
 
-export const updateProduct = (item_password, productID) => `${backendLocation}/api/items/update?item_password=${item_password}&_id=${productID}`
+export const createPromo = () => `${backendLocation}/api/buyGet/create`
 
-export const deleteProduct = (item_password, productID) => `${backendLocation}/api/items/delete?item_password=${item_password}&_id=${productID}`
+export const updatePromo = (promoTitle) => `${backendLocation}/api/buyGet/update?title=${promoTitle}`
+
+export const deletePromo = (promoTitle) => `${backendLocation}/api/buyGet/delete?title=${promoTitle}`

@@ -10,6 +10,8 @@ import IndexPage from './pages/IndexPage';
 
 import CreateNew from './pages/CreateNewPage';
 
+import UpdatePageHolder from './pages/UpdatePageHolder';
+
 
 const App = () => {
 
@@ -28,6 +30,8 @@ const App = () => {
         <Route path='/' element={<IndexPage />} />
 
         <Route path='/create' element={<CreateNew />} />
+
+        <Route path='/update' element={<UpdatePageHolder />} />
 
         <Route path='*' element={<PageNotFound />} />
 

@@ -1,12 +1,6 @@
-import Cookies from 'universal-cookie'
-
-import { tokenCookieName } from '../__env'
-
 const getToken = () => {
 
-  const cookie = new Cookies()
-
-  return cookie.get(tokenCookieName)
+  return "bat"
 
 }
 
