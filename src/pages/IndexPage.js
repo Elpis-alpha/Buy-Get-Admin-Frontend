@@ -8,6 +8,8 @@ import styled from "styled-components"
 
 import { useNavigate } from "react-router-dom"
 
+import xlsx from "json-as-xlsx"
+
 import { deletePromo, getAllBuyGetSimple } from "../api"
 
 import { deleteApiJson, getApiJson } from "../controllers/APICtrl"
@@ -81,6 +83,80 @@ const IndexPage = () => {
     }
 
     setLoadingText('')
+
+  }
+
+  const downloadExcel = async (serverData) => {
+
+    let data = [
+
+      {
+
+        sheet: "Promo Data",
+
+        columns: [
+
+          { label: "Title", value: "title" }, // Top level data
+
+          { label: "Applied On", value: "applied" },
+
+          { label: "Original", value: "original" },
+
+          { label: "Original Pieces", value: "original_p" },
+
+          { label: "Offer", value: "offer" },
+
+          { label: "Offer Pieces", value: "offer_p" },
+
+          { label: "Start Date", value: "start_date" },
+
+          { label: "End Date", value: "end_date" },
+
+          { label: "Created On", value: "create_date" },
+
+        ],
+
+        content: serverData.map(promoItem => {
+
+          return {
+
+            title: promoItem.title,
+
+            applied: promoItem.productOrBrand.type,
+
+            original: promoItem.productOrBrand.data.name,
+
+            original_p: promoItem.productOrBrand.pieces,
+
+            offer: promoItem.offerProducts.data.name,
+
+            offer_p: promoItem.offerProducts.pieces,
+
+            start_date: new Date(promoItem.startDate).toLocaleDateString(),
+
+            end_date: new Date(promoItem.endDate).toLocaleDateString(),
+
+            create_date: new Date(promoItem.createdAt).toLocaleDateString(),
+
+          }
+
+        })
+
+      },
+
+    ]
+
+    let settings = {
+
+      fileName: "MySpreadsheet", // Name of the resulting spreadsheet
+
+      extraLength: 3, // A bigger number means that columns will be wider
+
+      writeOptions: {}, // Style options from https://github.com/SheetJS/sheetjs#writing-options
+
+    }
+
+    xlsx(data, settings) // Will download the excel file
 
   }
 
@@ -178,6 +254,8 @@ const IndexPage = () => {
 
           <Link to="/create">Create a new Promo</Link>
 
+          <button onClick={() => downloadExcel(serverData)}>Download Excel</button>
+
         </div>
 
         {loadingText !== "" && <div className="abs-form">
@@ -255,6 +333,10 @@ const IndexPageStyle = styled.div`
         font-size: 1.5pc;
         line-height: 3pc;
       }
+    }
+
+    button {
+      margin: 1pc;
     }
   }
 `
